@@ -16,6 +16,26 @@ azurefiledown - a task for downloading files from Windows Azure blob store.
 
 To compile the ANT task jar file run "ant jar" in the root folder of the project.
 
+Building the Project:
+========
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/bleehouse/azureAnt.git
+   cd azureAnt
+   ```
+
+2. Download Azure SDK dependencies:
+   ```bash
+   ant download-dependencies
+   ```
+   This will download required Azure SDK JARs to the `jars` directory.
+
+3. Build the project:
+   ```bash
+   ant jar
+   ```
+   This will create `azureant.jar` in the `dist` directory.
+
 Code Features:
 ========
 - Built with Java 17 language features

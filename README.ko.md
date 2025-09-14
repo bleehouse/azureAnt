@@ -16,6 +16,26 @@ azurefiledown - Windows Azure blob 저장소에서 파일을 다운로드하는 
 
 ANT 작업 jar 파일을 컴파일하려면 프로젝트의 루트 폴더에서 "ant jar" 명령을 실행하세요.
 
+프로젝트 빌드하기:
+========
+1. 저장소 복제:
+   ```bash
+   git clone https://github.com/bleehouse/azureAnt.git
+   cd azureAnt
+   ```
+
+2. Azure SDK 의존성 다운로드:
+   ```bash
+   ant download-dependencies
+   ```
+   이 명령은 필요한 Azure SDK JAR 파일들을 `jars` 디렉토리에 다운로드합니다.
+
+3. 프로젝트 빌드:
+   ```bash
+   ant jar
+   ```
+   이 명령은 `dist` 디렉토리에 `azureant.jar` 파일을 생성합니다.
+
 코드 특징:
 ========
 - Java 17 언어 기능 사용
