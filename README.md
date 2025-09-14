@@ -1,14 +1,26 @@
 azureAnt
 ========
 
-This is a simple ANT plugin that adds two ANT tasks:
+This is a simple ANT plugin that adds two ANT tasks for Windows Azure blob storage operations. The plugin is built with Java 17 and modern programming practices.
+
+Requirements:
+- Java 17 or higher
+- Apache Ant
 
 azurefileup - a task for uploading files to Windows Azure blob store 
 
 and 
 azurefiledown - a task for downloading files from Windows Azure blob store. 
 
-to compile the ANT task jar file run "ant jar" in the root folder of the project.
+To compile the ANT task jar file run "ant jar" in the root folder of the project.
+
+Code Features:
+========
+- Built with Java 17 language features
+- Modern collection framework usage (ArrayList instead of Vector)
+- Enhanced switch expressions
+- Type inference with var keyword
+- Latest Azure Storage SDK compatibility
 
 Usage:
 ========
@@ -69,12 +81,12 @@ to upload a file to your Windows Azure blob store:
     
         container - string, required. Name of the blob container where you want the files to be uploaded.
         
-        list -  boolean, optional. If set to "true" will print out a list of keys in the blob container where the new file is being uploaded after 
+        list - boolean, optional. If set to "true" will print out a list of keys in the blob container where the new file is being uploaded after 
         finishing the upload. Default value is "false".
         
         create - boolean, optional. When a blob container specified in "container" parameter does not exist, the task can create
-        the container. If "create" is set to "true", the task will attempt to create the blob container. If "create" is set to "false" and the container
-        does not exist, the task will fail. Default value is "true".
+        the container. If "create" is set to "true", the task will attempt to create the blob container using the latest Azure SDK methods. 
+        If "create" is set to "false" and the container does not exist, the task will fail. Default value is "true".
         
         <fileset> - FileSet, required. Ant <fileset> element that defines the list of files to be uploaded. See more here: http://ant.apache.org/manual/Types/fileset.html
         

@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
@@ -30,9 +31,9 @@ public class AzureBlobFileUpload extends Task {
 	String key;
 	String blobpath;
 	String protocol = "http";
-	private Vector filesets = new Vector();
-	Boolean create = true;
-	Boolean list = false;
+	private final List<FileSet> filesets = new ArrayList<>();
+	private boolean create = true;
+	private boolean list = false;
 	public void setContainer(String container) {
 		this.container = container;
 	}
@@ -45,16 +46,16 @@ public class AzureBlobFileUpload extends Task {
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
-	public void setCreate(Boolean create) {
+	public void setCreate(boolean create) {
 		this.create = create;
 	}
 
-	public void setList(Boolean list) {
+	public void setList(boolean list) {
 		this.list = list;
 	}
 	public void addFileset(FileSet fileset) {
         filesets.add(fileset);
-    	}
+    }
 	
 	public String getBlobpath() {
 		return blobpath;
@@ -81,20 +82,15 @@ public class AzureBlobFileUpload extends Task {
 			CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
 			CloudBlobContainer blobContainer = blobClient.getContainerReference(container);
 			if(create) {
-				blobContainer.createIfNotExist();
-				// Create a permissions object
-				BlobContainerPermissions containerPermissions = new BlobContainerPermissions();
-				// Include public access in the permissions object
-				//containerPermissions.setPublicAccess(BlobContainerPublicAccessType.CONTAINER);
-				// Set the permissions on the container
+				blobContainer.createIfNotExists();
+				var containerPermissions = new BlobContainerPermissions();
 				blobContainer.uploadPermissions(containerPermissions);
 			}
 
 			// Create or overwrite the "myimage.jpg" blob with contents from a local file
 			
-			for(Iterator itFSets = filesets.iterator(); itFSets.hasNext(); ) {
-				FileSet fs = (FileSet)itFSets.next();
-				DirectoryScanner ds = fs.getDirectoryScanner(getProject());        
+			for(FileSet fs : filesets) {
+				var ds = fs.getDirectoryScanner(getProject());
 	            String[] includedFiles = ds.getIncludedFiles();
 		        for(int i=0; i<includedFiles.length; i++) {
 		        	String filename = includedFiles[i].replace('\\','/');

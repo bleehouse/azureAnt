@@ -56,33 +56,33 @@ public class AzureBlobFileDownload extends Task {
         	throw new BuildException("Property 'file' is required");
         }
         try {
-        	String storageConnectionString = String.format("DefaultEndpointsProtocol=%s;AccountName=%s;AccountKey=%s", protocol, account, key);
-			CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
-			CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-			CloudBlobContainer blobContainer = blobClient.getContainerReference(container);
+        	var storageConnectionString = String.format("DefaultEndpointsProtocol=%s;AccountName=%s;AccountKey=%s", protocol, account, key);
+			var storageAccount = CloudStorageAccount.parse(storageConnectionString);
+			var blobClient = storageAccount.createCloudBlobClient();
+			var blobContainer = blobClient.getContainerReference(container);
 
 			// Create or overwrite the "myimage.jpg" blob with contents from a local file
 			CloudBlockBlob blobHandle = blobContainer.getBlockBlobReference(blob);
 			if(blobHandle == null || !blobHandle.exists()) {
-				if(notfound.equalsIgnoreCase("fail")) {
-					getProject().log("Cannot find blob " + blob);
-					throw new BuildException("Cannot find blob " + blob);
-				} else if(notfound.equalsIgnoreCase("continue")) {
-					//
-				} else if(notfound.equalsIgnoreCase("log")) {
-					getProject().log("Cannot find blob " + blob);
-				} 
+				switch (notfound.toLowerCase()) {
+					case "fail" -> {
+						getProject().log("Cannot find blob " + blob);
+						throw new BuildException("Cannot find blob " + blob);
+					}
+					case "continue" -> {}
+					case "log" -> getProject().log("Cannot find blob " + blob);
+					default -> {}
+				}
 			}
 			getProject().log("Downloading blob " + blob + " to " + file);
 			blobHandle.download(new FileOutputStream(file));
 		} catch (Exception e) {
-			if(notfound.equalsIgnoreCase("fail")) {
-				throw new BuildException(e);
-			} else if(notfound.equalsIgnoreCase("continue")) {
-				//
-			} else if(notfound.equalsIgnoreCase("log")) {
-				getProject().log("Cannot find blob " + blob);
-			} 
+			switch (notfound.toLowerCase()) {
+				case "fail" -> throw new BuildException(e);
+				case "continue" -> {}
+				case "log" -> getProject().log("Cannot find blob " + blob);
+				default -> {}
+			}
 		} 
     }
 	
