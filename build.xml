@@ -8,6 +8,15 @@
 	<property name="dist.dir" value="${basedir}/dist" />
 	<property name="build.classes" value="${build.out}/classes" />
 	<property name="final.name" value="azureant" />
+	
+	<!-- Azure SDK Dependencies -->
+	<property name="azure.version" value="12.24.0" />
+	<target name="download-dependencies">
+		<get src="https://repo1.maven.org/maven2/com/azure/azure-storage-blob/${azure.version}/azure-storage-blob-${azure.version}.jar"
+			dest="${java.build.lib}/azure-storage-blob.jar" usetimestamp="true"/>
+		<get src="https://repo1.maven.org/maven2/com/azure/azure-core/1.40.0/azure-core-1.40.0.jar"
+			dest="${java.build.lib}/azure-core.jar" usetimestamp="true"/>
+	</target>
 	<property name="azure.key" value="" />
 	<property name="azure.account" value="azureant" />
 	<property name="azure.container" value="testfiles" />

@@ -1,12 +1,7 @@
 package org.citybot.ant;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,16 +9,13 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.selectors.FileSelector;
 
-import com.microsoft.windowsazure.services.blob.client.BlobContainerPermissions;
-import com.microsoft.windowsazure.services.blob.client.BlobContainerPublicAccessType;
-import com.microsoft.windowsazure.services.blob.client.CloudBlobClient;
-import com.microsoft.windowsazure.services.blob.client.CloudBlobContainer;
-import com.microsoft.windowsazure.services.blob.client.CloudBlockBlob;
-import com.microsoft.windowsazure.services.blob.client.ListBlobItem;
-import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
-import com.microsoft.windowsazure.services.core.storage.StorageException;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobContainerProperties;
+import com.azure.storage.blob.models.PublicAccessType;
 
 public class AzureBlobFileUpload extends Task {
 	String container;
@@ -77,14 +69,14 @@ public class AzureBlobFileUpload extends Task {
         	throw new BuildException("A nested 'fileset' is required");
         }
         try {
-        	String storageConnectionString = String.format("DefaultEndpointsProtocol=%s;AccountName=%s;AccountKey=%s", protocol, account, key);
-			CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
-			CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-			CloudBlobContainer blobContainer = blobClient.getContainerReference(container);
-			if(create) {
-				blobContainer.createIfNotExists();
-				var containerPermissions = new BlobContainerPermissions();
-				blobContainer.uploadPermissions(containerPermissions);
+        	var connectionString = String.format("DefaultEndpointsProtocol=%s;AccountName=%s;AccountKey=%s", protocol, account, key);
+			var blobServiceClient = new BlobServiceClientBuilder()
+                .connectionString(connectionString)
+                .buildClient();
+            
+            var containerClient = blobServiceClient.getBlobContainerClient(container);
+			if(create && !containerClient.exists()) {
+				containerClient = blobServiceClient.createBlobContainer(container);
 			}
 
 			// Create or overwrite the "myimage.jpg" blob with contents from a local file
@@ -98,6 +90,13 @@ public class AzureBlobFileUpload extends Task {
 		        	String blobname = filename.substring(filename.lastIndexOf("/")+1);
 		        	if(getBlobpath()!=null){
 		        		blobname = getBlobpath() + "/" + blobname;
+		        	}
+                    var blobClient = containerClient.getBlobClient(blobname);
+                    blobClient.uploadFromFile(source.getAbsolutePath());
+                    
+                    if(list) {
+                        getProject().log("Uploaded blob: " + blobname);
+                    }
 		        	}
 	                CloudBlockBlob blobHandle = blobContainer.getBlockBlobReference(blobname);
 	                blobHandle.upload(new FileInputStream(source), source.length());

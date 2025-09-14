@@ -6,6 +6,8 @@ This is a simple ANT plugin that adds two ANT tasks for Windows Azure blob stora
 Requirements:
 - Java 17 or higher
 - Apache Ant
+- Azure Storage SDK 12.24.0 or higher
+- Azure Core SDK 1.40.0 or higher
 
 azurefileup - a task for uploading files to Windows Azure blob store 
 

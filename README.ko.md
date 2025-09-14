@@ -6,6 +6,8 @@ azureAnt
 요구사항:
 - Java 17 이상
 - Apache Ant
+- Azure Storage SDK 12.24.0 이상
+- Azure Core SDK 1.40.0 이상
 
 azurefileup - Windows Azure blob 저장소에 파일을 업로드하는 작업 
 

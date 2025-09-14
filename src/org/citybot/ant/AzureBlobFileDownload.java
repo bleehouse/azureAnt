@@ -1,14 +1,16 @@
 package org.citybot.ant;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import com.microsoft.windowsazure.services.blob.client.CloudBlobClient;
-import com.microsoft.windowsazure.services.blob.client.CloudBlobContainer;
-import com.microsoft.windowsazure.services.blob.client.CloudBlockBlob;
-import com.microsoft.windowsazure.services.core.storage.CloudStorageAccount;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.core.util.Context;
 
 public class AzureBlobFileDownload extends Task {
 	String blob;
@@ -56,14 +58,15 @@ public class AzureBlobFileDownload extends Task {
         	throw new BuildException("Property 'file' is required");
         }
         try {
-        	var storageConnectionString = String.format("DefaultEndpointsProtocol=%s;AccountName=%s;AccountKey=%s", protocol, account, key);
-			var storageAccount = CloudStorageAccount.parse(storageConnectionString);
-			var blobClient = storageAccount.createCloudBlobClient();
-			var blobContainer = blobClient.getContainerReference(container);
-
-			// Create or overwrite the "myimage.jpg" blob with contents from a local file
-			CloudBlockBlob blobHandle = blobContainer.getBlockBlobReference(blob);
-			if(blobHandle == null || !blobHandle.exists()) {
+        	var connectionString = String.format("DefaultEndpointsProtocol=%s;AccountName=%s;AccountKey=%s", protocol, account, key);
+			var blobServiceClient = new BlobServiceClientBuilder()
+                .connectionString(connectionString)
+                .buildClient();
+            
+            var containerClient = blobServiceClient.getBlobContainerClient(container);
+            var blobClient = containerClient.getBlobClient(blob);
+            
+            if (!blobClient.exists()) {
 				switch (notfound.toLowerCase()) {
 					case "fail" -> {
 						getProject().log("Cannot find blob " + blob);
@@ -75,8 +78,8 @@ public class AzureBlobFileDownload extends Task {
 				}
 			}
 			getProject().log("Downloading blob " + blob + " to " + file);
-			blobHandle.download(new FileOutputStream(file));
-		} catch (Exception e) {
+			blobClient.downloadToFile(file);
+		} catch (IOException e) {
 			switch (notfound.toLowerCase()) {
 				case "fail" -> throw new BuildException(e);
 				case "continue" -> {}
